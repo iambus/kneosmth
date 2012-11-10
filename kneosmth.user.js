@@ -123,18 +123,20 @@
       return;
     }
     verify_oper = opers[0], post_oper = opers[1];
-    old_button = post_oper.children[0];
     verify_oper.hidden = true;
+    old_button = post_oper.children[0];
+    old_button.value = '发表';
+    old_button.title = '使用原来的方式发表文章（请手动输入验证码）';
     button = document.createElement('input');
     button.type = 'button';
     button.value = '直接发表';
+    button.title = '不必输入验证码';
     post_oper.insertBefore(button, old_button);
     button.addEventListener('click', post);
     check = document.createElement('input');
     check.type = 'checkbox';
     post_oper.insertBefore(check, old_button);
     check.addEventListener('click', function(event) {
-      console.log(event.target.checked);
       verify_oper.hidden = !event.target.checked;
     });
     check_label = document.createTextNode('显示验证码');
