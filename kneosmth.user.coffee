@@ -62,6 +62,7 @@ post = ->
 			redirect_ok board, board_cn, id, reid isnt '0'
 		else
 			alert xhr.responseText
+	return
 
 overwrite_hotkey = ->
 	textarea = document.getElementsByName('text')[0]
@@ -86,7 +87,7 @@ insert_post_button = ->
 
 	button = document.createElement 'input'
 	button.type = 'button'
-	button.value = '\u76f4\u63a5\u53d1\u8868'
+	button.value = '直接发表'
 	post_oper.insertBefore button, old_button
 	button.addEventListener 'click', post
 
@@ -96,6 +97,7 @@ insert_post_button = ->
 	check.addEventListener 'click', (event) ->
 		console.log event.target.checked
 		verify_oper.hidden = not event.target.checked
+		return
 
 	check_label = document.createTextNode('显示验证码')
 	post_oper.insertBefore check_label, old_button

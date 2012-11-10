@@ -73,7 +73,7 @@
     title = document.getElementsByName('title')[0].value;
     text = document.getElementsByName('text')[0].value;
     signature = document.getElementsByName('signature')[0].value;
-    return gm_ajax("/nForum/article/" + board + "/ajax_post.json", {
+    gm_ajax("/nForum/article/" + board + "/ajax_post.json", {
       id: reid,
       subject: title,
       content: text,
@@ -127,7 +127,7 @@
     verify_oper.hidden = true;
     button = document.createElement('input');
     button.type = 'button';
-    button.value = '\u76f4\u63a5\u53d1\u8868';
+    button.value = '直接发表';
     post_oper.insertBefore(button, old_button);
     button.addEventListener('click', post);
     check = document.createElement('input');
@@ -135,7 +135,7 @@
     post_oper.insertBefore(check, old_button);
     check.addEventListener('click', function(event) {
       console.log(event.target.checked);
-      return verify_oper.hidden = !event.target.checked;
+      verify_oper.hidden = !event.target.checked;
     });
     check_label = document.createTextNode('显示验证码');
     return post_oper.insertBefore(check_label, old_button);
