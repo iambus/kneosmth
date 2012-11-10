@@ -40,7 +40,7 @@
     };
     xhr.open("Post", url, true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.setRequestHeader("Referer", "http://www.newsmth.net/nForum/");
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
     return xhr.send(encode_form(form));
   };
 
@@ -51,7 +51,6 @@
       data: encode_form(form),
       headers: {
         "Content-type": "application/x-www-form-urlencoded",
-        "Referer": "http://www.newsmth.net/nForum/",
         "X-Requested-With": "XMLHttpRequest"
       },
       onload: callback

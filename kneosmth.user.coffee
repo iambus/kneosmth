@@ -20,7 +20,7 @@ ajax = (url, form, callback) ->
 		callback xhr
 	xhr.open "Post", url, true
 	xhr.setRequestHeader "Content-type", "application/x-www-form-urlencoded"
-	xhr.setRequestHeader "Referer", "http://www.newsmth.net/nForum/"
+	xhr.setRequestHeader "X-Requested-With", "XMLHttpRequest"
 	xhr.send encode_form form
 
 gm_ajax = (url, form, callback) ->
@@ -30,7 +30,6 @@ gm_ajax = (url, form, callback) ->
 		data: encode_form form
 		headers:
 			"Content-type": "application/x-www-form-urlencoded"
-			"Referer": "http://www.newsmth.net/nForum/"
 			"X-Requested-With":	"XMLHttpRequest"
 		onload: callback
 
