@@ -3,7 +3,7 @@
 /*
 // ==UserScript==
 // @author         kneo
-// @version        0.0.1
+// @version        0.0.2
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
