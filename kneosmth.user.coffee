@@ -1,13 +1,15 @@
 ###
 // ==UserScript==
 // @author         kneo
-// @version        0.1.1
+// @version        0.2.0
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
 // @include        http://www.newsmth.net/bbspst.php?*
 // @include        http://www.newsmth.net/bbsguestleft.html
 // @include        http://www.newsmth.net/bbsqry.php?userid=*
+// @include        http://www.newsmth.net/bbscon.php?*
+// @include        http://www.newsmth.net/bbstcon.php?*
 // ==/UserScript==
 ###
 
@@ -158,4 +160,111 @@ if is_user()
 		else
 			alert xhr.responseText
 
+##################################################
+# ASCII coloring
+##################################################
+
+is_reading = -> /^http:\/\/(www\.)newsmth\.net\/bbst?con\.php\?/.test window.location
+
+ascii_to_html = (ascii) ->
+	#	return ascii.replace(/\r[\[\d;]+[a-z]/gi, "")
+
+	html = []
+	tags = []
+	state = ['0', '30', '47']
+	i = 0
+
+	colors =
+		'1;31;47': 'color: #e80000'
+		'1;32;47': 'color: #009600'
+		'1;33;47': 'color: #919600'
+		'1;34;47': 'color: #0000e8'
+		'1;35;47': 'color: #e800e8'
+		'1;36;47': 'color: #009691'
+		'1;37;47': 'color: #000000'
+		'000': 'color: #e8f0e8'
+		'0;31;47': 'color: #e87874'
+		'0;32;47': 'color: #00b400'
+		'0;33;47': 'color: #aeb400'
+		'0;34;47': 'color: #7478e8'
+		'0;35;47': 'color: #e878e8'
+		'0;36;47': 'color: #00b4ae'
+		'0;37;47': 'color: #303230'
+		'008': 'color: #747874'
+		'0;30;41': 'background-color: #e8c8c1'
+		'0;30;42': 'background-color: #c1f0c1'
+		'0;30;43': 'background-color: #e8f0b8'
+		'0;30;44': 'background-color: #c1c8e8'
+		'0;30;45': 'background-color: #e8c8e8'
+		'0;30;46': 'background-color: #b8f0e8'
+		'0;30;47': 'background-color: #c1c8c1'
+		'800': 'background-color: #F6F6F6'
+
+	css = (code) ->
+		for x in code.split /;/
+			unless /^\d+$/.test x
+				return
+			n = parseInt(x)
+			if 0 <= n <= 1
+				state[0] = n
+			else if 30 <= n <= 37
+				state[1] = n
+			else if 40 <= n <= 47
+				state[2] = n
+			else
+				return
+		colors[state.join(';')]
+
+	open_tag = (tag) ->
+		color = css tag
+		if color
+			span = """<span style="#{color}">"""
+			html.push span
+			tags.push span
+		else
+			console.log 'ignoring ascii tag', tag
+
+	close_tags = ->
+		html.push Array(tags.length+1).join '</span>'
+		tags = []
+		state = ['0', '30', '47']
+
+	re = /\r[\[\d;]+[a-z]/gi
+	while match = re.exec ascii
+		html.push ascii.substr(i, match.index - i)
+
+		tag = match[0]
+		i = match.index + tag.length
+
+		m = tag[tag.length - 1]
+		if m == 'm'
+			tag = tag.substr 2, tag.length - 3
+
+			if tag
+				open_tag(tag)
+			else
+				close_tags()
+		else
+			console.log 'ignoring ascii tag', tag
+
+	html.push ascii.substr(i)
+	close_tags()
+
+	return html.join ''
+
+raw_to_html = (s) ->
+	s = s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+	s = ascii_to_html s
+	s = s.replace(/\x20\x20/g, " &nbsp;").replace(/\n /g, "\n&nbsp;")
+	s = s.replace(/\n(: [^\n]*)/g, "<br/><span class=\"f006\">$1</span>")
+	s = s.replace(/\n/g, "<br/>")
+	urlmatch = new RegExp("((?:http|https|ftp|mms|rtsp)://(&(?=amp;)|[A-Za-z0-9\./=\?%_~@#:;\+\-])+)", "ig")
+	s = s.replace(urlmatch, "<a target=\"_blank\" href=\"$1\">$1</a>")
+	return s
+
+
+if is_reading()
+	raw = unsafeWindow.strPrint
+	article = document.getElementsByClassName('article')[0]
+	article.innerHTML = raw_to_html(raw)
 
