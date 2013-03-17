@@ -171,36 +171,61 @@ ascii_to_html = (ascii) ->
 
 	html = []
 	tags = []
-	state = ['0', '30', '47']
+	state = ['0', '30', '40']
 	i = 0
 
+	foregrounds =
+		'1;30': 'color: #747874'
+		'1;31': 'color: #e80000'
+		'1;32': 'color: #009600'
+		'1;33': 'color: #919600'
+		'1;34': 'color: #0000e8'
+		'1;35': 'color: #e800e8'
+		'1;36': 'color: #009691'
+		'1;37': 'color: #000000'
+		'0;30': 'color: #e8f0e8'
+		'0;31': 'color: #e87874'
+		'0;32': 'color: #00b400'
+		'0;33': 'color: #aeb400'
+		'0;34': 'color: #7478e8'
+		'0;35': 'color: #e878e8'
+		'0;36': 'color: #00b4ae'
+		'0;37': 'color: #303230'
+
+	backgrounds =
+		'40': 'background-color: #f7f7f7'
+		'41': 'background-color: #e8c8c1'
+		'42': 'background-color: #c1f0c1'
+		'43': 'background-color: #e8f0b8'
+		'44': 'background-color: #c1c8e8'
+		'45': 'background-color: #e8c8e8'
+		'46': 'background-color: #b8f0e8'
+		'47': 'background-color: #c1c8c1'
+
 	colors =
-		'1;31;47': 'color: #e80000'
-		'1;32;47': 'color: #009600'
-		'1;33;47': 'color: #919600'
-		'1;34;47': 'color: #0000e8'
-		'1;35;47': 'color: #e800e8'
-		'1;36;47': 'color: #009691'
-		'1;37;47': 'color: #000000'
-		'000': 'color: #e8f0e8'
-		'0;31;47': 'color: #e87874'
-		'0;32;47': 'color: #00b400'
-		'0;33;47': 'color: #aeb400'
-		'0;34;47': 'color: #7478e8'
-		'0;35;47': 'color: #e878e8'
-		'0;36;47': 'color: #00b4ae'
-		'0;37;47': 'color: #303230'
-		'008': 'color: #747874'
-		'0;30;41': 'background-color: #e8c8c1'
-		'0;30;42': 'background-color: #c1f0c1'
-		'0;30;43': 'background-color: #e8f0b8'
-		'0;30;44': 'background-color: #c1c8e8'
-		'0;30;45': 'background-color: #e8c8e8'
-		'0;30;46': 'background-color: #b8f0e8'
-		'0;30;47': 'background-color: #c1c8c1'
-		'800': 'background-color: #F6F6F6'
+#		'0;30;40': 'color: #e8f0e8'
+		'4': 'text-decoration: underline'
+
+	for f, ff of foregrounds
+		colors[f+';40'] = ff
+
+	for b, bb of backgrounds
+		colors['0;30;'+b] = bb
+
+	for f, ff of foregrounds
+		for b, bb of backgrounds
+			colors[f+';'+b] = ff + '; ' + bb
 
 	css = (code) ->
+		if code == '4'
+			return colors['4']
+#		else if code == '40'
+#			if state[2] != 40
+#				if 41 <= tags[tags.length-1] <= 47
+#					html.push '</span>'
+#					tags.pop()
+#					state[2] = 40
+#					return colors[state.join(';')]
 		for x in code.split /;/
 			unless /^\d+$/.test x
 				return
@@ -220,14 +245,14 @@ ascii_to_html = (ascii) ->
 		if color
 			span = """<span style="#{color}">"""
 			html.push span
-			tags.push span
+			tags.push tag
 		else
 			console.log 'ignoring ascii tag', tag
 
 	close_tags = ->
 		html.push Array(tags.length+1).join '</span>'
 		tags = []
-		state = ['0', '30', '47']
+		state = ['0', '30', '40']
 
 	re = /\r[\[\d;]+[a-z]/gi
 	while match = re.exec ascii
