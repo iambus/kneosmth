@@ -1,13 +1,18 @@
 ###
 // ==UserScript==
 // @author         kneo
-// @version        0.0.2
+// @version        0.1.0
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
 // @include        http://www.newsmth.net/bbspst.php?*
+// @include        http://www.newsmth.net/bbsguestleft.html
 // ==/UserScript==
 ###
+
+##################################################
+# remove verify code
+##################################################
 
 is_posting = -> /^http:\/\/(www\.)newsmth\.net\/bbspst\.php\?/.test window.location
 
@@ -108,5 +113,23 @@ insert_post_button = ->
 if is_posting()
 	insert_post_button()
 	overwrite_hotkey()
-	
+
+
+##################################################
+# remove 51smth
+##################################################
+
+is_nav = -> window.location.toString() == 'http://www.newsmth.net/bbsguestleft.html'
+
+if is_nav()
+	herfs = document.getElementsByTagName('a')
+	for a in herfs
+		if a.getAttribute('href') == 'http://www.51smth.com'
+			parent = a.parentNode
+			img = a.previousSibling
+			br = a.nextElementSibling
+			parent.removeChild(img)
+			parent.removeChild(a)
+			parent.removeChild(br)
+			break
 
