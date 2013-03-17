@@ -3,18 +3,19 @@
 /*
 // ==UserScript==
 // @author         kneo
-// @version        0.1.0
+// @version        0.1.1
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
 // @include        http://www.newsmth.net/bbspst.php?*
 // @include        http://www.newsmth.net/bbsguestleft.html
+// @include        http://www.newsmth.net/bbsqry.php?userid=*
 // ==/UserScript==
 */
 
 
 (function() {
-  var a, ajax, br, encode_form, gm_ajax, herfs, img, insert_post_button, is_nav, is_posting, overwrite_hotkey, parent, post, redirect_ok, _i, _len;
+  var a, ajax, br, encode_form, gm_ajax, herfs, img, insert_post_button, is_nav, is_posting, is_user, overwrite_hotkey, parent, post, redirect_ok, user, _i, _len;
 
   is_posting = function() {
     return /^http:\/\/(www\.)newsmth\.net\/bbspst\.php\?/.test(window.location);
@@ -47,7 +48,7 @@
 
   gm_ajax = function(url, form, callback) {
     return GM_xmlhttpRequest({
-      method: 'POST',
+      method: form ? 'POST' : 'GET',
       url: url,
       data: encode_form(form),
       headers: {
@@ -167,6 +168,34 @@
         break;
       }
     }
+  }
+
+  is_user = function() {
+    return window.location.toString().match(/^http:\/\/www\.newsmth\.net\/bbsqry\.php\?userid=(\w+)$/);
+  };
+
+  if (is_user()) {
+    user = is_user()[1];
+    gm_ajax("/nForum/user/query/" + user + ".json", null, function(xhr) {
+      var location, nform_info, result, text;
+      if (xhr.readyState !== 4) {
+        return;
+      }
+      if (xhr.status !== 200) {
+        alert('error: ' + xhr.status);
+        return;
+      }
+      result = JSON.parse(xhr.responseText);
+      if (result.ajax_st === 1) {
+        nform_info = "用户积分：" + result.score_user + " 论坛等级：" + result.life + "(" + result.lifelevel + ")";
+        text = document.createTextNode(nform_info);
+        location = document.getElementsByClassName('c36')[0];
+        location.parentNode.insertBefore(text, location);
+        return location.parentNode.insertBefore(document.createElement('br'), location);
+      } else {
+        return alert(xhr.responseText);
+      }
+    });
   }
 
 }).call(this);

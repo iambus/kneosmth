@@ -1,12 +1,13 @@
 ###
 // ==UserScript==
 // @author         kneo
-// @version        0.1.0
+// @version        0.1.1
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
 // @include        http://www.newsmth.net/bbspst.php?*
 // @include        http://www.newsmth.net/bbsguestleft.html
+// @include        http://www.newsmth.net/bbsqry.php?userid=*
 // ==/UserScript==
 ###
 
@@ -30,7 +31,7 @@ ajax = (url, form, callback) ->
 
 gm_ajax = (url, form, callback) ->
 	GM_xmlhttpRequest
-		method: 'POST'
+		method: if form then 'POST' else 'GET'
 		url: url
 		data: encode_form form
 		headers:
@@ -132,4 +133,29 @@ if is_nav()
 			parent.removeChild(a)
 			parent.removeChild(br)
 			break
+
+##################################################
+# nforum user query
+##################################################
+
+is_user = -> window.location.toString().match /^http:\/\/www\.newsmth\.net\/bbsqry\.php\?userid=(\w+)$/
+
+if is_user()
+	user = is_user()[1]
+	gm_ajax "/nForum/user/query/#{user}.json", null, (xhr) ->
+		if xhr.readyState != 4
+			return
+		if xhr.status != 200
+			alert 'error: ' + xhr.status
+			return
+		result = JSON.parse xhr.responseText
+		if result.ajax_st == 1
+			nform_info = "用户积分：#{result.score_user} 论坛等级：#{result.life}(#{result.lifelevel})"
+			text = document.createTextNode(nform_info)
+			location = document.getElementsByClassName('c36')[0]
+			location.parentNode.insertBefore(text, location)
+			location.parentNode.insertBefore(document.createElement('br'), location)
+		else
+			alert xhr.responseText
+
 
