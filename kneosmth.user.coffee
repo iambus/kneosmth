@@ -224,6 +224,8 @@ ascii_to_html = (ascii) ->
 				return
 			n = parseInt(x)
 			if n == 0
+				state.foreground = null
+				state.background = null
 				state.bold = null
 				state.underline = null
 				state.blink = null
