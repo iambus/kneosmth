@@ -293,8 +293,9 @@ ascii_to_html = (ascii) ->
 
 raw_to_html = (s) ->
 	s = s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+	s = s.replace(/\x20/g, "&#160;")
 	s = ascii_to_html s
-	s = s.replace(/\x20\x20/g, " &nbsp;").replace(/\n /g, "\n&nbsp;")
+#	s = s.replace(/\x20\x20/g, " &nbsp;").replace(/\n /g, "\n&nbsp;")
 	s = s.replace(/\n(: [^\n]*)/g, "<br/><span class=\"f006\">$1</span>")
 	s = s.replace(/\n/g, "<br/>")
 	urlmatch = new RegExp("((?:http|https|ftp|mms|rtsp)://(&(?=amp;)|[A-Za-z0-9\./=\?%_~@#:;\+\-])+)", "ig")
