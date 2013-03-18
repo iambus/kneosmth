@@ -172,6 +172,7 @@ ascii_to_html = (ascii) ->
 	html = []
 	tags = []
 	state = ['0', '30', '40']
+	effects = []
 	i = 0
 
 	foregrounds =
@@ -205,6 +206,7 @@ ascii_to_html = (ascii) ->
 	colors =
 #		'0;30;40': 'color: #e8f0e8'
 		'4': 'text-decoration: underline'
+		'5': 'text-decoration: blink'
 
 	for f, ff of foregrounds
 		colors[f+';40'] = ff
@@ -217,8 +219,6 @@ ascii_to_html = (ascii) ->
 			colors[f+';'+b] = ff + '; ' + bb
 
 	css = (code) ->
-		if code == '4'
-			return colors['4']
 #		else if code == '40'
 #			if state[2] != 40
 #				if 41 <= tags[tags.length-1] <= 47
@@ -232,13 +232,24 @@ ascii_to_html = (ascii) ->
 			n = parseInt(x)
 			if 0 <= n <= 1
 				state[0] = n
+				if state == 0
+					effects = []
 			else if 30 <= n <= 37
 				state[1] = n
 			else if 40 <= n <= 47
 				state[2] = n
+			else if n == 4
+				effects.push colors['4']
+			else if n == 5
+				effects.push colors['5']
 			else
 				return
-		colors[state.join(';')]
+		style = colors[state.join(';')]
+		if style
+			if effects
+				return style + ';' + effects.join(';')
+			else
+				return style
 
 	open_tag = (tag) ->
 		color = css tag
@@ -253,6 +264,7 @@ ascii_to_html = (ascii) ->
 		html.push Array(tags.length+1).join '</span>'
 		tags = []
 		state = ['0', '30', '40']
+		effects = []
 
 	re = /\r[\[\d;]+[a-z]/gi
 	while match = re.exec ascii

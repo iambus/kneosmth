@@ -206,10 +206,11 @@
   };
 
   ascii_to_html = function(ascii) {
-    var b, backgrounds, bb, close_tags, colors, css, f, ff, foregrounds, html, i, m, match, open_tag, re, state, tag, tags;
+    var b, backgrounds, bb, close_tags, colors, css, effects, f, ff, foregrounds, html, i, m, match, open_tag, re, state, tag, tags;
     html = [];
     tags = [];
     state = ['0', '30', '40'];
+    effects = [];
     i = 0;
     foregrounds = {
       '1;30': 'color: #747874',
@@ -240,7 +241,8 @@
       '47': 'background-color: #c1c8c1'
     };
     colors = {
-      '4': 'text-decoration: underline'
+      '4': 'text-decoration: underline',
+      '5': 'text-decoration: blink'
     };
     for (f in foregrounds) {
       ff = foregrounds[f];
@@ -258,10 +260,7 @@
       }
     }
     css = function(code) {
-      var n, x, _j, _len1, _ref;
-      if (code === '4') {
-        return colors['4'];
-      }
+      var n, style, x, _j, _len1, _ref;
       _ref = code.split(/;/);
       for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
         x = _ref[_j];
@@ -271,15 +270,29 @@
         n = parseInt(x);
         if ((0 <= n && n <= 1)) {
           state[0] = n;
+          if (state === 0) {
+            effects = [];
+          }
         } else if ((30 <= n && n <= 37)) {
           state[1] = n;
         } else if ((40 <= n && n <= 47)) {
           state[2] = n;
+        } else if (n === 4) {
+          effects.push(colors['4']);
+        } else if (n === 5) {
+          effects.push(colors['5']);
         } else {
           return;
         }
       }
-      return colors[state.join(';')];
+      style = colors[state.join(';')];
+      if (style) {
+        if (effects) {
+          return style + ';' + effects.join(';');
+        } else {
+          return style;
+        }
+      }
     };
     open_tag = function(tag) {
       var color, span;
@@ -295,7 +308,8 @@
     close_tags = function() {
       html.push(Array(tags.length + 1).join('</span>'));
       tags = [];
-      return state = ['0', '30', '40'];
+      state = ['0', '30', '40'];
+      return effects = [];
     };
     re = /\r[\[\d;]+[a-z]/gi;
     while (match = re.exec(ascii)) {
