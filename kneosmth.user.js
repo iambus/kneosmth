@@ -347,7 +347,7 @@
     s = s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     s = s.replace(/\x20/g, "&#160;");
     s = ascii_to_html(s);
-    s = s.replace(/\n(: [^\n]*)/g, "<br/><span class=\"f006\">$1</span>");
+    s = s.replace(/\n(:&#160;[^\n]*)/g, "<br/><span class=\"f006\">$1</span>");
     s = s.replace(/\n/g, "<br/>");
     urlmatch = new RegExp("((?:http|https|ftp|mms|rtsp)://(&(?=amp;)|[A-Za-z0-9\./=\?%_~@#:;\+\-])+)", "ig");
     s = s.replace(urlmatch, "<a target=\"_blank\" href=\"$1\">$1</a>");
