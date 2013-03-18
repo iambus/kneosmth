@@ -206,12 +206,11 @@
   };
 
   ascii_to_html = function(ascii) {
-    var b, backgrounds, bb, close_tags, colors, css, effects, f, ff, foregrounds, html, i, m, match, open_tag, re, state, tag, tags;
+    var backgrounds, close_tags, colors, css, css_of_state, fix_tags, foregrounds, html, i, m, match, open_tag, re, state, tag, tags;
+    i = 0;
     html = [];
     tags = [];
-    state = ['0', '30', '40'];
-    effects = [];
-    i = 0;
+    state = {};
     foregrounds = {
       '1;30': 'color: #747874',
       '1;31': 'color: #e80000',
@@ -244,21 +243,23 @@
       '4': 'text-decoration: underline',
       '5': 'text-decoration: blink'
     };
-    for (f in foregrounds) {
-      ff = foregrounds[f];
-      colors[f + ';40'] = ff;
-    }
-    for (b in backgrounds) {
-      bb = backgrounds[b];
-      colors['0;30;' + b] = bb;
-    }
-    for (f in foregrounds) {
-      ff = foregrounds[f];
-      for (b in backgrounds) {
-        bb = backgrounds[b];
-        colors[f + ';' + b] = ff + '; ' + bb;
+    css_of_state = function(state) {
+      var styles, _ref, _ref1;
+      styles = [];
+      if (state.background) {
+        styles.push(backgrounds[state.background.toString()]);
       }
-    }
+      if (state.foreground || state.bold || state.background) {
+        styles.push(foregrounds["" + ((_ref = state.bold) != null ? _ref : '0') + ";" + ((_ref1 = state.foreground) != null ? _ref1 : '30')]);
+      }
+      if (state.underline) {
+        styles.push(colors['4']);
+      }
+      if (state.blink) {
+        styles.push(colors['5']);
+      }
+      return styles.join('; ');
+    };
     css = function(code) {
       var n, style, x, _j, _len1, _ref;
       _ref = code.split(/;/);
@@ -268,48 +269,56 @@
           return;
         }
         n = parseInt(x);
-        if ((0 <= n && n <= 1)) {
-          state[0] = n;
-          if (state === 0) {
-            effects = [];
-          }
-        } else if ((30 <= n && n <= 37)) {
-          state[1] = n;
-        } else if ((40 <= n && n <= 47)) {
-          state[2] = n;
+        if (n === 0) {
+          state.bold = null;
+          state.underline = null;
+          state.blink = null;
+        } else if (n === 1) {
+          state.bold = 1;
+        } else if (n === 30) {
+          state.foreground = null;
+        } else if ((31 <= n && n <= 37)) {
+          state.foreground = n;
+        } else if (n === 40) {
+          state.background = null;
+        } else if ((41 <= n && n <= 47)) {
+          state.background = n;
         } else if (n === 4) {
-          effects.push(colors['4']);
+          state.underline = true;
         } else if (n === 5) {
-          effects.push(colors['5']);
+          state.blink = true;
         } else {
           return;
         }
       }
-      style = colors[state.join(';')];
-      if (style) {
-        if (effects) {
-          return style + ';' + effects.join(';');
-        } else {
-          return style;
-        }
+      style = css_of_state(state);
+      fix_tags();
+      return style;
+    };
+    fix_tags = function() {
+      var _ref;
+      while ((_ref = html[html.length - 1]) != null ? _ref.match(/^<span/) : void 0) {
+        html.pop();
+        tags.pop();
       }
+      html.push(Array(tags.length + 1).join('</span>'));
+      return tags = [];
     };
     open_tag = function(tag) {
-      var color, span;
-      color = css(tag);
-      if (color) {
-        span = "<span style=\"" + color + "\">";
+      var span, style;
+      style = css(tag);
+      if (style) {
+        span = "<span style=\"" + style + "\">";
         html.push(span);
         return tags.push(tag);
-      } else {
+      } else if (!(style != null)) {
         return console.log('ignoring ascii tag', tag);
       }
     };
     close_tags = function() {
       html.push(Array(tags.length + 1).join('</span>'));
       tags = [];
-      state = ['0', '30', '40'];
-      return effects = [];
+      return state = {};
     };
     re = /\r[\[\d;]+[a-z]/gi;
     while (match = re.exec(ascii)) {

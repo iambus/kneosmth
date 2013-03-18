@@ -169,11 +169,10 @@ is_reading = -> /^http:\/\/(www\.)newsmth\.net\/bbscon\.php\?/.test window.locat
 ascii_to_html = (ascii) ->
 	#	return ascii.replace(/\r[\[\d;]+[a-z]/gi, "")
 
+	i = 0
 	html = []
 	tags = []
-	state = ['0', '30', '40']
-	effects = []
-	i = 0
+	state = {}
 
 	foregrounds =
 		'1;30': 'color: #747874'
@@ -204,67 +203,70 @@ ascii_to_html = (ascii) ->
 		'47': 'background-color: #c1c8c1'
 
 	colors =
-#		'0;30;40': 'color: #e8f0e8'
 		'4': 'text-decoration: underline'
 		'5': 'text-decoration: blink'
 
-	for f, ff of foregrounds
-		colors[f+';40'] = ff
-
-	for b, bb of backgrounds
-		colors['0;30;'+b] = bb
-
-	for f, ff of foregrounds
-		for b, bb of backgrounds
-			colors[f+';'+b] = ff + '; ' + bb
+	css_of_state = (state) ->
+		styles = []
+		if state.background
+			styles.push backgrounds[state.background.toString()]
+		if state.foreground or state.bold or state.background
+			styles.push foregrounds["#{state.bold ? '0'};#{state.foreground ? '30'}"]
+		if state.underline
+			styles.push colors['4']
+		if state.blink
+			styles.push colors['5']
+		return styles.join '; '
 
 	css = (code) ->
-#		else if code == '40'
-#			if state[2] != 40
-#				if 41 <= tags[tags.length-1] <= 47
-#					html.push '</span>'
-#					tags.pop()
-#					state[2] = 40
-#					return colors[state.join(';')]
 		for x in code.split /;/
 			unless /^\d+$/.test x
 				return
 			n = parseInt(x)
-			if 0 <= n <= 1
-				state[0] = n
-				if state == 0
-					effects = []
-			else if 30 <= n <= 37
-				state[1] = n
-			else if 40 <= n <= 47
-				state[2] = n
+			if n == 0
+				state.bold = null
+				state.underline = null
+				state.blink = null
+			else if n == 1
+				state.bold = 1
+			else if n == 30
+				state.foreground = null
+			else if 31 <= n <= 37
+				state.foreground = n
+			else if n == 40
+				state.background = null
+			else if 41 <= n <= 47
+				state.background = n
 			else if n == 4
-				effects.push colors['4']
+				state.underline = true
 			else if n == 5
-				effects.push colors['5']
+				state.blink = true
 			else
 				return
-		style = colors[state.join(';')]
-		if style
-			if effects
-				return style + ';' + effects.join(';')
-			else
-				return style
+		style = css_of_state state
+		fix_tags()
+		return style
+
+	fix_tags = () ->
+		while html[html.length - 1]?.match /^<span/
+			html.pop()
+			tags.pop()
+		html.push Array(tags.length+1).join '</span>'
+		tags = []
 
 	open_tag = (tag) ->
-		color = css tag
-		if color
-			span = """<span style="#{color}">"""
+		style = css tag
+		if style
+			span = """<span style="#{style}">"""
 			html.push span
 			tags.push tag
-		else
+		else if not style?
 			console.log 'ignoring ascii tag', tag
 
 	close_tags = ->
 		html.push Array(tags.length+1).join '</span>'
 		tags = []
-		state = ['0', '30', '40']
-		effects = []
+		state = {}
 
 	re = /\r[\[\d;]+[a-z]/gi
 	while match = re.exec ascii
