@@ -3,12 +3,13 @@
 /*
 // ==UserScript==
 // @author         kneo
-// @version        0.2.1
+// @version        0.2.2
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
 // @include        http://www.newsmth.net/bbspst.php?*
 // @include        http://www.newsmth.net/bbsguestleft.html
+// @include        http://www.newsmth.net/bbsleft.php
 // @include        http://www.newsmth.net/bbsqry.php?userid=*
 // @include        http://www.newsmth.net/bbscon.php?*
 // ==/UserScript==
@@ -152,7 +153,8 @@
   }
 
   is_nav = function() {
-    return window.location.toString() === 'http://www.newsmth.net/bbsguestleft.html';
+    var _ref;
+    return (_ref = window.location.toString()) === 'http://www.newsmth.net/bbsguestleft.html' || _ref === 'http://www.newsmth.net/bbsleft.php';
   };
 
   if (is_nav()) {

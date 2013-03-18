@@ -1,12 +1,13 @@
 ###
 // ==UserScript==
 // @author         kneo
-// @version        0.2.1
+// @version        0.2.2
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
 // @include        http://www.newsmth.net/bbspst.php?*
 // @include        http://www.newsmth.net/bbsguestleft.html
+// @include        http://www.newsmth.net/bbsleft.php
 // @include        http://www.newsmth.net/bbsqry.php?userid=*
 // @include        http://www.newsmth.net/bbscon.php?*
 // ==/UserScript==
@@ -121,7 +122,7 @@ if is_posting()
 # remove 51smth
 ##################################################
 
-is_nav = -> window.location.toString() == 'http://www.newsmth.net/bbsguestleft.html'
+is_nav = -> window.location.toString() in ['http://www.newsmth.net/bbsguestleft.html', 'http://www.newsmth.net/bbsleft.php']
 
 if is_nav()
 	herfs = document.getElementsByTagName('a')
