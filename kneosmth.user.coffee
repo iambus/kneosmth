@@ -9,7 +9,6 @@
 // @include        http://www.newsmth.net/bbsguestleft.html
 // @include        http://www.newsmth.net/bbsqry.php?userid=*
 // @include        http://www.newsmth.net/bbscon.php?*
-// @include        http://www.newsmth.net/bbstcon.php?*
 // ==/UserScript==
 ###
 
@@ -164,7 +163,7 @@ if is_user()
 # ASCII coloring
 ##################################################
 
-is_reading = -> /^http:\/\/(www\.)newsmth\.net\/bbst?con\.php\?/.test window.location
+is_reading = -> /^http:\/\/(www\.)newsmth\.net\/bbscon\.php\?/.test window.location
 
 ascii_to_html = (ascii) ->
 	#	return ascii.replace(/\r[\[\d;]+[a-z]/gi, "")
@@ -291,5 +290,8 @@ raw_to_html = (s) ->
 if is_reading()
 	raw = unsafeWindow.strPrint
 	article = document.getElementsByClassName('article')[0]
-	article.innerHTML = raw_to_html(raw)
+	if article
+		article.innerHTML = raw_to_html(raw)
+	else
+		unsafeWindow.strArticle = raw_to_html(raw)
 
