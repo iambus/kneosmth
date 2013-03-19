@@ -1,7 +1,7 @@
 ###
 // ==UserScript==
 // @author         kneo
-// @version        0.2.3
+// @version        0.2.4
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
@@ -307,9 +307,11 @@ raw_to_html = (s) ->
 
 if is_reading()
 	raw = unsafeWindow.strPrint
+	attach = unsafeWindow.strArticle.match(/(<br \/><img src="images\/img\.gif"\/>此主题相关图片如下：|<br \/>附件: ).*$/)?[0]
+	html = raw_to_html(raw) + (attach ? '')
 	article = document.getElementsByClassName('article')[0]
 	if article
-		article.innerHTML = raw_to_html(raw)
+		article.innerHTML = html
 	else
-		unsafeWindow.strArticle = raw_to_html(raw)
+		unsafeWindow.strArticle = html
 

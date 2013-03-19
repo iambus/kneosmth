@@ -3,7 +3,7 @@
 /*
 // ==UserScript==
 // @author         kneo
-// @version        0.2.3
+// @version        0.2.4
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
@@ -17,7 +17,7 @@
 
 
 (function() {
-  var a, ajax, article, ascii_to_html, br, encode_form, gm_ajax, herfs, img, insert_post_button, is_nav, is_posting, is_reading, is_user, overwrite_hotkey, parent, post, raw, raw_to_html, redirect_ok, user, _i, _len;
+  var a, ajax, article, ascii_to_html, attach, br, encode_form, gm_ajax, herfs, html, img, insert_post_button, is_nav, is_posting, is_reading, is_user, overwrite_hotkey, parent, post, raw, raw_to_html, redirect_ok, user, _i, _len, _ref;
 
   is_posting = function() {
     return /^http:\/\/(www\.)newsmth\.net\/bbspst\.php\?/.test(window.location);
@@ -358,11 +358,13 @@
 
   if (is_reading()) {
     raw = unsafeWindow.strPrint;
+    attach = (_ref = unsafeWindow.strArticle.match(/(<br \/><img src="images\/img\.gif"\/>此主题相关图片如下：|<br \/>附件: ).*$/)) != null ? _ref[0] : void 0;
+    html = raw_to_html(raw) + (attach != null ? attach : '');
     article = document.getElementsByClassName('article')[0];
     if (article) {
-      article.innerHTML = raw_to_html(raw);
+      article.innerHTML = html;
     } else {
-      unsafeWindow.strArticle = raw_to_html(raw);
+      unsafeWindow.strArticle = html;
     }
   }
 
