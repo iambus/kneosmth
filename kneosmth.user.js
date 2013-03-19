@@ -3,7 +3,7 @@
 /*
 // ==UserScript==
 // @author         kneo
-// @version        0.2.4
+// @version        0.2.5
 // @name           kneosmth
 // @namespace      https://github.com/iambus
 // @description    It's my style
@@ -277,11 +277,11 @@
           state.blink = null;
         } else if (n === 1) {
           state.bold = 1;
-        } else if (n === 30) {
+        } else if (n === 30 || n === 39) {
           state.foreground = null;
         } else if ((31 <= n && n <= 37)) {
           state.foreground = n;
-        } else if (n === 40) {
+        } else if (n === 40 || n === 49) {
           state.background = null;
         } else if ((41 <= n && n <= 47)) {
           state.background = n;
